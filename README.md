@@ -74,7 +74,7 @@ cd ipls_anomaly_detection
 
 This is the main code for IPLS; it is from the Github Repository [IPLS-Java-API](https://github.com/ChristodoulosPappas/IPLS-Java-API) by ChristodoulosPappas.
 
-You may want to read the included presentation pdf the included [here](IPLS-Java-API_technicaEdit/IPLS presentation.pdf) to get a better understanding on how IPLS itself works.
+You may want to read the included presentation pdf to get a better understanding on how IPLS itself works.
 
 The repository is included here as we have made a few changes:
 
