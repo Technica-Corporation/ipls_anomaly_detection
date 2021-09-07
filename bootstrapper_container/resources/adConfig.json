@@ -1,0 +1,23 @@
+{
+    "modelPath" : "/workspace/ad_ipls_params",
+    "scalerPath" : "/workspace/scaler",
+    "mqttProtocol" : "",
+    "mqttBrokerip" : "0.0.0.0",
+    "mqttPort" : "7883",
+    "mqttSubTopic" : "",
+    "mqttPubTopic" : "", 
+    "ipfsAddress" : "/ip4/127.0.0.1/tcp/5001",
+    "ipfsBootstrapperAddresses": [
+    ],
+    "ipfsBootstrapperIds" : [
+    ],
+    "iplsIsBootstrapper" : "true",
+    "peerDataisSynchronous" : "false",
+    "epochs" : "1",
+    "learningRate" : "0",
+    "iplsModelPartitions" : "8",
+    "iplsMinPartitions" : "2",
+    "iplsMinPeers" : "1",
+    "updateFrequency" : 0,
+    "stabilityCount" : 0
+}

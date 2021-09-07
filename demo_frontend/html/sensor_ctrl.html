@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sensor Control</title>
+    <meta name="description" content="Technica Corporation Sensor Control">
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
+      <a class="navbar-brand cursor-default" href="#">SmartFog Sensor Control</a>
+    </nav>
+    <div class="container-fluid">
+      <div class="row" style="height: 94vh">
+        <div id="vehicle1Ctrl" class="col-3 vehicleCtrl">
+          <div>
+            <h4>Vehicle1 Data</h4>
+            <img src="/images/humvee.png">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-top: 10px;">
+              <label class="btn btn-info active">
+                <input type="radio" name="options" id="vehicle1NormalBtn" autocomplete="off" checked> Normal 
+              </label>
+              <label class="btn btn-info">
+                <input type="radio" name="options" id="vehicle1AnomalousBtn" autocomplete="off"> Off-Road 
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="vehicle2Ctrl" class="col-3 vehicleCtrl">
+          <div>
+            <h4>Vehicle2 Data</h4>
+            <img src="/images/humvee.png">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-top: 10px;">
+              <label class="btn btn-info active">
+                <input type="radio" name="options" id="vehicle2NormalBtn" autocomplete="off" checked> Normal
+              </label>
+              <label class="btn btn-info">
+                <input type="radio" name="options" id="vehicle2AnomalousBtn" autocomplete="off"> Off-Road 
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="vehicle3Ctrl" class="col-3 vehicleCtrl">
+          <div>
+            <h4>Vehicle3 Data</h4>
+            <img src="/images/humvee.png">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-top: 10px;">
+              <label class="btn btn-info active">
+                <input type="radio" name="options" id="vehicle3NormalBtn" autocomplete="off" checked> Normal
+              </label>
+              <label class="btn btn-info">
+                <input type="radio" name="options" id="vehicle3AnomalousBtn" autocomplete="off"> Off-Road 
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="vehicle4Ctrl" class="col-3 vehicleCtrl">
+          <div>
+            <h4>Vehicle4 Data</h4>
+            <img src="/images/humvee.png">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-top: 10px;">
+              <label class="btn btn-info active">
+                <input type="radio" name="options" id="vehicle4NormalBtn" autocomplete="off" checked> Normal
+              </label>
+              <label class="btn btn-info">
+                <input type="radio" name="options" id="vehicle4AnomalousBtn" autocomplete="off"> Off-Road 
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script src="/js/sensor_ctrl.js"></script>
+
+</html>

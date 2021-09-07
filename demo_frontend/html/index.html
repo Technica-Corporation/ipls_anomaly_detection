@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mircoservices Demo</title>
+    <meta name="description" content="Technica Corporation MicroService Demo">
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/epoch.min.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/d3.v3.min.js"></script>
+    <script src="/js/epoch.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
+      <a class="navbar-brand cursor-default" href="#">SmartFog Dashboard</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="navbar-nav">
+          <a id="modeLink0" class="nav-item nav-link mode-link cursor-pointer noselect active">Sensor Data Feed</a>
+          <a id="modeLink1" class="nav-item nav-link mode-link cursor-pointer noselect">Anomaly Detection</a>
+          <a id="modeLink2" class="nav-item nav-link mode-link cursor-pointer noselect">Federated Learning</a>
+        </div>
+      </div>
+    </nav>
+    <div id="mode0Display" class="mode-display active-display">
+      <div id="vehicleTabs">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a id="v1TabLink" class="nav-link vehicle-tab-link cursor-pointer noselect font-weight-bold active">Vehicle 1</a>
+          </li>
+          <li class="nav-item">
+            <a id="v2TabLink" class="nav-link vehicle-tab-link cursor-pointer noselect">Vehicle 2</a>
+          </li>
+          <li class="nav-item">
+            <a id="v3TabLink" class="nav-link vehicle-tab-link cursor-pointer noselect">Vehicle 3</a>
+          </li>
+          <li class="nav-item">
+            <a id="v4TabLink" class="nav-link vehicle-tab-link cursor-pointer noselect">Vehicle 4</a>
+          </li>
+        </ul>
+      </div>
+      <div class="container-fluid">
+        <div id="v1SensorDataDisplay" class="vehicle-sensor-data vehicle1">
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Front Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v1Sensor1Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Rear Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v1Sensor2Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Battery Power</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v1Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Seat Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v1Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Engine Vibration</h4>
+              <span class="vertical-axis-text text-center">f</span>
+              <div id="v1Sensor4Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Mass Air Flow(MAF)</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v1Sensor5Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Voltage Sensor</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v1Sensor6Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+<!--
+          <div class="row">
+            <div class="col-4">
+              <h4 class="text-center">GPS Signal Strength</h4>
+              <span class="vertical-axis-text text-center">dBm</span>
+              <div id="v1Sensor7Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Manifold Absolute Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v1Sensor8Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Modulation Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v1Sensor9Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+          </div>
+-->
+        </div>
+        <div id="v2SensorDataDisplay" class="vehicle-sensor-data vehicle2">
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Front Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v2Sensor1Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Rear Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v2Sensor2Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Battery Power</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v2Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Seat Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v2Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Engine Vibration</h4>
+              <span class="vertical-axis-text text-center">f</span>
+              <div id="v2Sensor4Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Mass Air Flow(MAF)</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v2Sensor5Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Voltage Sensor</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v2Sensor6Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+<!--
+          <div class="row">
+            <div class="col-4">
+              <h4 class="text-center">GPS Signal Strength</h4>
+              <span class="vertical-axis-text text-center">dBm</span>
+              <div id="v2Sensor7Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Manifold Absolute Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v2Sensor8Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Modulation Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v2Sensor9Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+          </div>
+-->
+        </div>
+        <div id="v3SensorDataDisplay" class="vehicle-sensor-data vehicle3">
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Front Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v3Sensor1Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Rear Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v3Sensor2Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Battery Power</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v3Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Seat Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v3Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Engine Vibration</h4>
+              <span class="vertical-axis-text text-center">f</span>
+              <div id="v3Sensor4Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Mass Air Flow(MAF)</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v3Sensor5Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Voltage Sensor</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v3Sensor6Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+<!--
+          <div class="row">
+            <div class="col-4">
+              <h4 class="text-center">GPS Signal Strength</h4>
+              <span class="vertical-axis-text text-center">dBm</span>
+              <div id="v3Sensor7Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Manifold Absolute Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v3Sensor8Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Modulation Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v3Sensor9Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+          </div>
+-->
+        </div>
+        <div id="v4SensorDataDisplay" class="vehicle-sensor-data vehicle4">
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Front Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v4Sensor1Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Rear Shock Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v4Sensor2Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Battery Power</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v4Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <h4 class="text-center">Seat Sensor</h4>
+              <span class="vertical-axis-text text-center">g</span>
+              <div id="v4Sensor3Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-center">Engine Vibration</h4>
+              <span class="vertical-axis-text text-center">f</span>
+              <div id="v4Sensor4Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+<!--
+            <div class="col-4">
+              <h4 class="text-center">Mass Air Flow(MAF)</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v4Sensor5Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Voltage Sensor</h4>
+              <span class="vertical-axis-text text-center">V</span>
+              <div id="v4Sensor6Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+-->
+          </div>
+<!--
+          <div class="row">
+            <div class="col-4">
+              <h4 class="text-center">GPS Signal Strength</h4>
+              <span class="vertical-axis-text text-center">dBm</span>
+              <div id="v4Sensor7Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Manifold Absolute Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v4Sensor8Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+            <div class="col-4">
+              <h4 class="text-center">Modulation Pressure</h4>
+              <span class="vertical-axis-text text-center">psi</span>
+              <div id="v4Sensor9Chart" class="epoch category10 sensor-chart"></div>
+            </div>
+          </div>
+-->
+        </div>
+      </div>
+    </div>
+    <div id="mode1Display" class="mode-display">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Vehicle 1 Anomaly Detection</h4>
+            <div id="v1AnomalyChart" class="epoch category10 anomaly-chart"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Vehicle 2 Anomaly Detection</h4>
+            <div id="v2AnomalyChart" class="epoch category10 anomaly-chart"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Vehicle 3 Anomaly Detection</h4>
+            <div id="v3AnomalyChart" class="epoch category10 anomaly-chart"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Vehicle 4 Anomaly Detection</h4>
+            <div id="v4AnomalyChart" class="epoch category10 anomaly-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mode2Display" class="mode-display">
+      <div class="container-fluid">
+        <div id="fedlearningRow" class="row">
+          <div class="col-12">
+            <h4 class="text-center">Federated Learning Progress</h4>
+	    <div class="progress">
+            	<div id="fedlearningprogress" class="progress-bar" role="progressbar" style="width: 0%">0 of 10</div>
+	    </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script src="/js/index.js"></script>
+
+</html>

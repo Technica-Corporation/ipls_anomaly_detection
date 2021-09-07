@@ -1,0 +1,6 @@
+PyByteBuffer
+jsons
+web3
+pandas
+numpy
+paho-mqtt==1.4.0

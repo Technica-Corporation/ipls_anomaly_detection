@@ -1,0 +1,11 @@
+Bootstrap: localimage
+From: docker_bootstrapper.sif
+
+%post
+    chmod -R 777 /workspace
+
+%runscript
+    cd /workspace && bash ipls_demo.sh
+
+%startscript
+    cd /workspace && bash ipls_demo.sh

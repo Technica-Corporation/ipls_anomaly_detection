@@ -1,0 +1,510 @@
+# IPLS Anomaly Detection Setup
+
+This Repository contains several sub-projects for building the containers required to run a demo of IPLS performing Anomaly Detection. This demo is stand-alone, however it has also been integrated into Technica's Smartfog.
+
+Below is the architecture for this demo:
+
+![demo_architecture](resources/demo_architecture.png)
+
+
+
+The components of the demo are as follows:
+
+- IPLS Bootstrapper:
+
+  - For this demo you need at least one device, but can use as many as you want
+    - Having more than one will eliminate a single point of failure
+  - Containers are Docker or Singularity
+  - Tested on Jetson Nano (Linux ARM64) 
+    - For example, in the Technica Lab we used:
+      - 192.168.56.206
+      - 192.168.56.207
+
+- IPLS Peers:
+
+  - For this demo you need four devices
+    - You may use less, but you should have at least two
+  - Containers are Docker or Singularity
+  - Tested on Raspberry Pi 4 (Linux ARM64)
+  - For example, in the Technica Lab we used:
+    - 192.168.56.201
+    - 192.168.56.202
+    - 192.168.56.204
+    - 192.168.56.205
+
+- Demo Data Generators:
+
+  -  For this demo, these are the same as the IPLS Peer devices
+  -  Containers are Docker
+  -  Tested on Raspberry Pi 4 (Linux ARM64)
+
+- Demo Front-End
+
+  - For this demo you need one device separate from the Peers
+
+  - Container is Docker
+
+  - Tested on Linux x86_64
+
+  - For example, in the Technica Lab we used a server:
+
+    - 192.168.56.15
+
+------
+
+
+
+## Initial Setup
+
+The following setup steps will be completed on all Bootstrapper and Peer Devices.
+
+On each of the devices, pull down the project:
+
+```bash
+git clone https://github.com/Technica-Corporation/ipls_anomaly_detection.git
+```
+
+```bash
+cd ipls_anomaly_detection
+```
+
+
+
+### IPLS_Java_API_technicaEdit
+
+This is the main code for IPLS; it is from the Github Repository [IPLS-Java-API](https://github.com/ChristodoulosPappas/IPLS-Java-API) by ChristodoulosPappas.
+
+You may want to read the included presentation pdf the included [here](IPLS-Java-API_technicaEdit/IPLS presentation.pdf) to get a better understanding on how IPLS itself works.
+
+The repository is included here as we have made a few changes:
+
+- Everything in the 'default' package was moved into a new package called 'originalDefault'
+
+- An AnomalyDetectionDriver.java was added to the 'default' package
+
+- An 'anomalydetection' package was added which includes all our code for IPLS Anomaly Detection
+
+- The pom.xml had a few edits, the most notable being that the version for deeplearning4j and nd4j was upgraded to 1.0.0-M1.1
+
+  > **_NOTE:_**  The previous version pulled in a specific version of OpenBlas that has a bug on Arm64 platforms causing calculations to sporadically result in NaN.
+  
+
+------
+
+
+
+### Compile IPLS Java API
+
+From ipls_anomaly_detection, navigate to compile_container:
+
+```bash
+cd compile_container/
+```
+
+```bash
+sh build_container.sh
+```
+
+```bash
+sh run_docker.sh -l
+```
+
+> **_NOTE:_**  run_docker.sh -l will copy the .jar file and a directory of libs/ to ipls_anomaly_detection/resources. 
+>
+> Running it without the -l flag will stop it from copying the libs, you will need these, but it can take a while on small devices so I added the option of ignoring it for later compiles.
+
+Once compiled, you may want to look into ipls_anomaly_detection/resources/libs/. The Maven build will include dependencies for multiple platforms and you may want to manually delete the ones you don't need to reduce the size of the containers.
+
+------
+
+
+
+### Build the Base Container
+
+This will build the base container for the IPLS Bootstrapper and IPLS Peer containers. It is built on openjdk:8u302-jre-slim-buster and container go and go-IPFS along with a few other system libraries required for the demo. 
+
+From ipls_anomaly_detection, navigate to base_container:
+
+```bash
+cd base_container/
+```
+
+```bash
+sh build_container.sh
+```
+
+------
+
+
+
+## Build the IPLS Bootstrapper Containers
+
+This will build the IPLS Bootstrapper Container; you need to build this on each of the Bootstrapper Devices.
+
+> **_NOTE:_**  You only need to build this on the Bootstrapper Devices, it does not need to be built on the Peer Devices.
+
+There is really only one difference between the Bootstrapper and Peer containers, but it is a big one. The Bootstrapper Container will `init ipfs` as part of the Docker Build; this is so the IPFS Peer ID of the Bootstrapper will stay constant for the Peer configurations. The Peers on the other hand will `init ipfs` when the containers are run, getting a new IPFS Peer ID each time.
+
+------
+
+### Docker Version
+
+From ipls_anomaly_detection, navigate to bootstrapper_container:
+
+```bash
+cd bootstrapper_container/
+```
+
+```bash
+sh build_container.sh
+```
+
+
+
+After the container is built, you will need to get the container's IPFS Peer ID:
+
+```bash
+sh get_peerid.sh
+```
+
+
+
+This will result in console output that looks something like this:
+
+```bash
+----------
+BOOTSTRAPPER_PEERID:
+12D3KooWHtpV9iqWJQrXCr95Foe5tpgiVih5YFXNeyVPUknVvAw8
+----------
+BOOTSTRAPPER_ADDRESS:
+/ip4/192.168.56.55/tcp/4001/ipfs/12D3KooWHtpV9iqWJQrXCr95Foe5tpgiVih5YFXNeyVPUknVvAw8
+----------
+```
+
+> **_NOTE:_** The IDs above are just examples, it is very unlikely that yours will be the same
+
+Copy these down as you will them to configure the Peers.
+
+> **_NOTE:_** There is a configuration file at ipls_anomaly-detection/bootstrapper_container/resources/adconfig.json
+>
+> This is used when the bootstrapper container is run, however you should not need to change it for the demo.
+
+------
+
+### Singularity Version
+
+This step will copy the Docker container and convert it to Singularity. This is an optional step, but requires the Docker version above to be complete before proceeding.
+
+From ipls_anomaly_detection navigate to bootstrapper_container/singularity:
+
+```bash
+cd bootstrapper_container/
+```
+
+```bash
+sh convert_to_singularity.sh
+```
+
+> **_NOTE:_** This will take a long time. The conversion saves the Docker container to a tar, converts it to a .sif file and then uses that as a base to build the final Singularity container.
+
+This will put bootstrapper.sif into the directory ipls_anomaly_detection/bootstrapper_container/singularity.
+
+This container will have the same Peer ID as the Docker version, so you should use that when configuring Peers. This container will also use the adConfig.json from the Docker Version step during the demo.
+
+------
+
+
+
+## Build the IPLS Peer Containers
+
+This will build the IPLS Peer Container;  you will need to build this on each of the Peer Devices:
+
+> **_NOTE:_**  You only need to build this on the Peer Devices, it does not need to be built on the Bootstrapper Devices.
+
+------
+
+### Docker Version
+
+From ipls_anomaly_detection, navigate to peer_container:
+
+```bash
+cd peer_container/
+```
+
+```bash
+sh build_container.sh
+```
+
+
+
+After the container is built, you will have to adjust the configurations.
+
+From ipls_anomaly_detection, navigate to /peer_container/resources:
+
+```bash
+cd peer_container/resources
+```
+
+Recall the values you used on the Bootstrapper Containers' `get_peer_id.sh` and use those values here for ${BOOTSTRAPPER_ADDRESS} and ${BOOTSTRAPPER_PEERID}. 
+
+These are lists, so you should add a value for each bootstrapper node you are using.
+
+Now for each Peer Node, decide a number from 1 to 4, and use that value here for ${NODE_NUMBER}; this number will used to identify each peer in the Demo Front-End.
+
+Edit the file 'adConfig.json':
+
+```bash
+{
+    "modelPath" : "/workspace/ad_ipls_params",
+    "scalerPath" : "/workspace/scaler",
+    "mqttProtocol" : "tcp://",
+    "mqttBrokerip" : "0.0.0.0",
+    "mqttPort" : "7883",
+    "mqttSubTopic" : "vehicle/${NODE_NUMBER}",
+    "mqttPubTopic" : "v${NODE_NUMBER}/anomaly", 
+    "ipfsAddress" : "/ip4/127.0.0.1/tcp/5001",
+    "ipfsBootstrapperAddresses": [
+        "${BOOTSTRAPPER_ADDRESS}"
+    ],
+    "ipfsBootstrapperIds" : [
+        "${BOOTSTRAPPER_PEERID}"
+    ],   
+    "iplsIsBootstrapper" : "false",
+    "peerDataisSynchronous" : "false",
+    "epochs" : "3",
+    "learningRate" : "0.001",
+    "iplsModelPartitions" : "8",
+    "iplsMinPartitions" : "2",
+    "iplsMinPeers" : "1",
+    "updateFrequency" : 32,
+    "stabilityCount" : 5
+}
+```
+
+------
+
+### Singularity Version
+
+This step will copy the Docker container and convert it to Singularity. This is an optional step, but requires the Docker version above to be complete before proceeding.
+
+From ipls_anomaly_detection, navigate to peer_container/singularity:
+
+```bash
+cd peer_container/singularity
+```
+
+```bash
+sh convert_to_singularity.sh
+```
+
+> **_NOTE:_** This will take a long time. The conversion saves the Docker container to a tar, converts it to a .sif file and then uses that as a base to build the final Singularity container.
+
+From ipls_anomaly_detection navigate to peer_container/singularity.
+
+This container will also use the adConfig.json from the Docker Version step during the demo.s
+
+------
+
+
+
+## Build the Demo Front-End Container
+
+This will build the front-end container for the Anomaly Detection Demo. This build is only for Docker on Linux x86_64.  
+
+From ipls_anomaly_detection, navigate to demo_generator:
+
+```bash
+cd demo_frontend/
+```
+
+```bash
+sh build_container.sh
+```
+
+> **_NOTE:_**  If you need to adjust anything for MQTT, the configs are at demo_frontend/resources/mosquitto.conf and demo_frontend/config.js. This should only happen if there are port conflicts.
+
+------
+
+
+
+## Build the Demo Generator Containers
+
+This will build a container that will continuously publish either "normal" or "anomaly" data to the IPLS Peer Containers. It will also setup an MQTT container to act as a broker for each IPLS Peer. You will need to build this on each of the Peer Devices. This is build is for Docker on Linux ARM64 only.
+
+From ipls_anomaly_detection, navigate to demo_generator:
+
+```bash
+cd demo_generator/
+```
+
+```bash
+sh build_container.sh
+```
+
+------
+
+### Adjust Configurations
+
+From ipls_anomaly_detection, navigate to demo_generator/resources:
+
+Edit "mosquitto.conf":
+
+```bash
+####### MQTT Insecure
+port 7883
+bind_address 0.0.0.0
+allow_anonymous true
+####### 
+
+max_queued_messages 20000
+
+connection cloud-bridge_0
+address ${FRONTEND_IP}:1883
+topic # out 1 "" ""
+```
+
+- Change ${FRONTEND_IP} to the IP of the Demo Front-end
+
+
+Edit "generators.conf":
+
+```bash
+#Local MQTT broker configuration
+[mqtt]
+host=0.0.0.0
+port=7883
+pub_topic=vehicle/${NODE_NUMBER}
+
+[service]
+publish_interval=.25
+total_runtime=0
+normal_file=/workspace/data/${NORMAL_DATA}
+anomaly_file=/workspace/data/${ANOMALY_DATA}
+```
+
+- Change ${NODE_NUMBER} to the one used in the previous step on each Peer Device
+- Change ${NORMAL_DATA} and ${ANOMALY_DATA}  to the file names in ipls_anomaly_detection/resources/data.
+
+>**_NOTE:_**  There are four files each for "normal" and "anomaly" data; you may use any data on any device so long as you use normal for normal and anomaly for anomaly.
+>
+>With four of each type, each Peer device can use different normal/anomaly files from each other.
+
+------
+
+
+
+## Running the Demo
+
+1. From ipls_anomaly_detection, navigate to demo_frontend on the Front-End Device
+
+   ```bash
+   sh run_docker.sh
+   ```
+
+   > **_NOTE:_** This will also start an mqtt container. If you need to restart it run:
+   >
+   > `docker stop ipls_mqtt` and `docker stop ad_gui` then run `sh run_docker.sh` again.
+
+   Open a browser and navigate to `http://${FRONTEND_IP}:5601/`
+
+   ![demo_architecture](resources/frontend1.png)
+
+   At the top of the page click the tab titled "Anomaly Detection"
+
+2. Start the Bootstrapper Containers;
+
+   -  Docker Version:
+
+     - From ipls_anomaly_detection, navigate to bootstrapper_container on the Bootstrapper Devices
+
+       ```
+       sh run_docker.sh
+       ```
+
+       > **_NOTE:_**  To detach without killing the container: **CTRL+p** then **CTRL+q**
+       >
+       > To view the running container logs: **`docker container logs -f ipls_test_peer`**
+
+   - Singularity Version:
+
+     - From ipls_anomaly_detection, navigate to bootstrapper_container/singularity on the Bootstrapper Devices
+
+       ```
+       sh run_singularity.sh
+       ```
+
+       > **_NOTE:_**  You may also run the container in the background as an instance via: 
+       >
+       > **`sh start_instance.sh`** and **`sh stop_instance.sh`**
+     
+     > **_NOTE:_** The terminal for this container will should read 'Daemon is ready' before it runs the Java code, and then several lines of 'Updater Started...' and 'java.util.concurrent.ForkJoinPool'
+     >
+     > This will signal that the Bootstrapper is properly running and waiting for Peers to join
+
+3. From ipls_anomaly_detection, navigate to demo_generator on the Peer Devices
+
+   ```bash
+   sh mqtt.sh
+   ```
+
+   > **_NOTE:_** 
+   >
+   > Running the script when a MQTT container **is not** running will **start** the container.
+   >
+   > Running the script when a MQTT container **is** running will **stop** the container.
+
+4. Start the Peer Containers:
+
+   -  Docker Version:
+
+      - From ipls_anomaly_detection, navigate to peer_container on the Peer Devices
+
+         ```
+         sh run_docker.sh
+         ```
+
+         > **_NOTE:_**  To detach without killing the container: **CTRL+p** then **CTRL+q**
+         >
+         > To view the running container logs: **`docker container logs -f ipls_test_peer`**
+
+   - Singularity Version:
+
+      - From ipls_anomaly_detection, navigate to peer_container/singularity on the Peer Devices
+
+         ```
+         sh run_singularity.sh
+         ```
+
+         > **_NOTE:_**  You may also run the container in the background as an instance via:
+         >
+         > **`sh start_instance.sh`** and **`sh stop_instance.sh`**
+      
+      > **_NOTE:_** The terminal for this container will should read 'Daemon is ready' before it runs the Java code, and then 'Connected to tcp://0.0.0.0:7883 with client ID' and 'Subscribing to topic "vehicle/1" qos 1'.
+      >
+      > At that point the Peers are joined in to IPLS and waiting for data. 
+
+5. From ipls_anomaly_detection, navigate to demo_generator on the Peer Devices
+
+   ```bash
+   sh run_docker.sh -n
+   ```
+
+   > **_NOTE:_**  The "-n" flag will publish normal data, while the "-a" flag will publish anomaly data 
+
+   Once the data is flowing you will see the error scores being published back to the Demo Front-end.
+
+   ![demo_architecture](resources/frontend2.png)
+
+As shown here, Vehicle 4 is using "normal" data so the blue line, the error scores, will be below the yellow line. The other three vehicles are using "anomaly" data.
+
+The general "flow" for the demo is usually to start all four devices on normal data then swap one to anomaly data and let it train for a several minutes; allowing the blue error score line to dip back below the yellow line.
+
+Then swap one or more of the other vehicles to anomaly data. Here you will notice that their error score lines do not spike like the first one did due to the training done on the first device.
+
+> **_NOTE:_**  If you terminate a Peer container, it will break the training of the other Peers; this is due to a bug with the IPLS code. 
+>
+>  You will need to terminate the rest of the containers, then start them again to proceed.
+
+> **_NOTE:_**  If a new Peer joins after some initial Peers have been training for a bit, you might observe an error score spike on the initial Peers; this is due to a bug with the IPLS code. 
+>
+> That spike is not persistent and will return to normal after the models update again.
