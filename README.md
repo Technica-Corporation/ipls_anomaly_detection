@@ -1,54 +1,48 @@
 # IPLS Anomaly Detection Setup
 
-This Repository contains several sub-projects for building the containers required to run a demo of IPLS performing Anomaly Detection. This demo is stand-alone, however it has also been integrated into Technica's Smartfog.
+Technica has a previous solution for Anomaly Detection that utilized Federated Learning. 
 
-Below is the architecture for this demo:
+Federated Learning allows models to continuously learn and train locally, then share new knowledge with other devices. 
 
-![demo_architecture](resources/demo_architecture.png)
+This repository contains a new Anomaly Detection solution, replacing Federating Learning with IPLS. 
+
+IPLS is an emerging technology that decentralizes the Federated Learning processes of model training and convergence, weight aggregation, and weight redistribution. The result is improved data privacy, performance, and elimination of single points of failure.  
 
 
 
-The components of the demo are as follows:
+Below is the architecture for this solution:
 
-- IPLS Bootstrapper:
+![demo_architecture](resources/IPLS_architecture.png)
 
-  - For this demo you need at least one device, but can use as many as you want
+- IPLS Bootstrappers:
+
+  - You need at least one device, but can use as many as you want
     - Having more than one will eliminate a single point of failure
   - Containers are Docker or Singularity
   - Tested on Jetson Nano (Linux ARM64) 
-    - For example, in the Technica Lab we used:
-      - 192.168.56.206
-      - 192.168.56.207
 
 - IPLS Peers:
 
-  - For this demo you need four devices
+  - You need four devices
     - You may use less, but you should have at least two
   - Containers are Docker or Singularity
   - Tested on Raspberry Pi 4 (Linux ARM64)
-  - For example, in the Technica Lab we used:
-    - 192.168.56.201
-    - 192.168.56.202
-    - 192.168.56.204
-    - 192.168.56.205
 
-- Demo Data Generators:
+- Data Generators:
 
-  -  For this demo, these are the same as the IPLS Peer devices
+  -  One for each IPLS Peer
+     -  Setup is more simple having them on the same device, but they do not need to be
   -  Containers are Docker
   -  Tested on Raspberry Pi 4 (Linux ARM64)
 
-- Demo Front-End
+- Front-End
 
-  - For this demo you need one device separate from the Peers
+  - You need one device separate from the Peers
 
   - Container is Docker
 
   - Tested on Linux x86_64
 
-  - For example, in the Technica Lab we used a server:
-
-    - 192.168.56.15
 
 ------
 
@@ -84,7 +78,7 @@ The repository is included here as we have made a few changes:
 
 - An 'anomalydetection' package was added which includes all our code for IPLS Anomaly Detection
 
-- The pom.xml had a few edits, the most notable being that the version for deeplearning4j and nd4j was upgraded to 1.0.0-M1.1
+- In the pom.xml the version for deeplearning4j and nd4j was upgraded to 1.0.0-M1.1
 
   > **_NOTE:_**  The previous version pulled in a specific version of OpenBlas that has a bug on Arm64 platforms causing calculations to sporadically result in NaN.
   
@@ -121,7 +115,7 @@ Once compiled, you may want to look into ipls_anomaly_detection/resources/libs/.
 
 ### Build the Base Container
 
-This will build the base container for the IPLS Bootstrapper and IPLS Peer containers. It is built on openjdk:8u302-jre-slim-buster and container go and go-IPFS along with a few other system libraries required for the demo. 
+This will build the base container for the IPLS Bootstrapper and IPLS Peer containers. It is built on openjdk:8u302-jre-slim-buster and container go and go-IPFS along with a few other required system libraries.
 
 From ipls_anomaly_detection, navigate to base_container:
 
@@ -187,7 +181,7 @@ Copy these down as you will them to configure the Peers.
 
 > **_NOTE:_** There is a configuration file at ipls_anomaly-detection/bootstrapper_container/resources/adconfig.json
 >
-> This is used when the bootstrapper container is run, however you should not need to change it for the demo.
+> This is used when the bootstrapper container is run and should ne need to be changed.
 
 ------
 
@@ -209,7 +203,7 @@ sh convert_to_singularity.sh
 
 This will put bootstrapper.sif into the directory ipls_anomaly_detection/bootstrapper_container/singularity.
 
-This container will have the same Peer ID as the Docker version, so you should use that when configuring Peers. This container will also use the adConfig.json from the Docker Version step during the demo.
+This container will have the same Peer ID as the Docker version, so you should use that when configuring Peers. This container will also use the adConfig.json from the Docker Version step.
 
 ------
 
@@ -307,34 +301,34 @@ This container will also use the adConfig.json from the Docker Version step duri
 
 
 
-## Build the Demo Front-End Container
+## Build the Front-End Container
 
-This will build the front-end container for the Anomaly Detection Demo. This build is only for Docker on Linux x86_64.  
+This will build the front-end container; this build is only for Docker on Linux x86_64.  
 
-From ipls_anomaly_detection, navigate to demo_generator:
+From ipls_anomaly_detection, navigate to frontend:
 
 ```bash
-cd demo_frontend/
+cd frontend/
 ```
 
 ```bash
 sh build_container.sh
 ```
 
-> **_NOTE:_**  If you need to adjust anything for MQTT, the configs are at demo_frontend/resources/mosquitto.conf and demo_frontend/config.js. This should only happen if there are port conflicts.
+> **_NOTE:_**  If you need to adjust anything for MQTT, the configs are at frontend/resources/mosquitto.conf and frontend/config.js. This should only happen if there are port conflicts.
 
 ------
 
 
 
-## Build the Demo Generator Containers
+## Build the Data Generator Containers
 
 This will build a container that will continuously publish either "normal" or "anomaly" data to the IPLS Peer Containers. It will also setup an MQTT container to act as a broker for each IPLS Peer. You will need to build this on each of the Peer Devices. This is build is for Docker on Linux ARM64 only.
 
 From ipls_anomaly_detection, navigate to demo_generator:
 
 ```bash
-cd demo_generator/
+cd data_generator/
 ```
 
 ```bash
@@ -345,7 +339,7 @@ sh build_container.sh
 
 ### Adjust Configurations
 
-From ipls_anomaly_detection, navigate to demo_generator/resources:
+From ipls_anomaly_detection, navigate to data_generator/resources:
 
 Edit "mosquitto.conf":
 
@@ -393,9 +387,9 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
 
 
 
-## Running the Demo
+## Demonstrating the Solution
 
-1. From ipls_anomaly_detection, navigate to demo_frontend on the Front-End Device
+1. From ipls_anomaly_detection, navigate to frontend on the Front-End Device
 
    ```bash
    sh run_docker.sh
@@ -441,7 +435,7 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
      >
      > This will signal that the Bootstrapper is properly running and waiting for Peers to join
 
-3. From ipls_anomaly_detection, navigate to demo_generator on the Peer Devices
+3. From ipls_anomaly_detection, navigate to data_generator on the Peer Devices
 
    ```bash
    sh mqtt.sh
@@ -491,13 +485,13 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
 
    > **_NOTE:_**  The "-n" flag will publish normal data, while the "-a" flag will publish anomaly data 
 
-   Once the data is flowing you will see the error scores being published back to the Demo Front-end.
+   Once the data is flowing you will see the error scores being published back to the Front-end.
 
    ![demo_architecture](resources/frontend2.png)
 
 As shown here, Vehicle 4 is using "normal" data so the blue line, the error scores, will be below the yellow line. The other three vehicles are using "anomaly" data.
 
-The general "flow" for the demo is usually to start all four devices on normal data then swap one to anomaly data and let it train for a several minutes; allowing the blue error score line to dip back below the yellow line.
+The general "flow" for the demonstration is usually to start all four devices on normal data then swap one to anomaly data and let it train for a several minutes; allowing the blue error score line to dip back below the yellow line.
 
 Then swap one or more of the other vehicles to anomaly data. Here you will notice that their error score lines do not spike like the first one did due to the training done on the first device.
 

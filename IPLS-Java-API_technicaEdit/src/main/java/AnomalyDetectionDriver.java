@@ -115,7 +115,7 @@ public class AnomalyDetectionDriver {
 			}
 			
 			// Define Model to use
-			// -> Smartfog Federated Learning Anomaly Detection Model <-
+			// -> Federated Learning Anomaly Detection Model <-
 			int rngSeed = 123;
 			// double learningRate = 0.001;
 			MultiLayerConfiguration modelConf = new NeuralNetConfiguration.Builder().seed(rngSeed)
