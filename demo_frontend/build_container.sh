@@ -1,1 +1,0 @@
-docker build -t ad-gui:latest .
