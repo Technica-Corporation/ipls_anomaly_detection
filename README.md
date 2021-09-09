@@ -1,14 +1,9 @@
 # IPLS Anomaly Detection Setup
 
-Technica has a previous solution for Anomaly Detection that utilized Federated Learning. 
+Technica’s fog-as-a-service platform previously included Anomaly Detection that utilized Federated Learning.  Federated Learning allows models to continuously learn and train locally, then share new knowledge with other devices.  
 
-Federated Learning allows models to continuously learn and train locally, then share new knowledge with other devices. 
-
-This repository contains a new Anomaly Detection solution, replacing Federating Learning with IPLS. 
-
-IPLS is an emerging technology that decentralizes the Federated Learning processes of model training and convergence, weight aggregation, and weight redistribution. The result is improved data privacy, performance, and elimination of single points of failure.  
-
-
+We have replaced Federated Learning with IPLS to decentralize the processes of model training and convergence, weight aggregation, and weight redistribution. 
+The result is improved data privacy, performance, and elimination of single points of failure.  This repository contains a new Anomaly Detection solution utilizing IPLS.
 
 Below is the architecture for this solution:
 
@@ -35,7 +30,7 @@ Below is the architecture for this solution:
   -  Containers are Docker
   -  Tested on Raspberry Pi 4 (Linux ARM64)
 
-- Front-End
+- Frontend
 
   - You need one device separate from the Peers
 
@@ -181,7 +176,7 @@ Copy these down as you will them to configure the Peers.
 
 > **_NOTE:_** There is a configuration file at ipls_anomaly-detection/bootstrapper_container/resources/adconfig.json
 >
-> This is used when the bootstrapper container is run and should ne need to be changed.
+> This is used when the bootstrapper container is run and should not need to be changed.
 
 ------
 
@@ -243,7 +238,7 @@ Recall the values you used on the Bootstrapper Containers' `get_peer_id.sh` and 
 
 These are lists, so you should add a value for each bootstrapper node you are using.
 
-Now for each Peer Node, decide a number from 1 to 4, and use that value here for ${NODE_NUMBER}; this number will used to identify each peer in the Demo Front-End.
+Now for each Peer Node, decide a number from 1 to 4, and use that value here for ${NODE_NUMBER}; this number will used to identify each peer in the Frontend.
 
 Edit the file 'adConfig.json':
 
@@ -295,15 +290,15 @@ sh convert_to_singularity.sh
 
 From ipls_anomaly_detection navigate to peer_container/singularity.
 
-This container will also use the adConfig.json from the Docker Version step during the demo.s
+This container will also use the adConfig.json from the Docker Version step.
 
 ------
 
 
 
-## Build the Front-End Container
+## Build the Frontend Container
 
-This will build the front-end container; this build is only for Docker on Linux x86_64.  
+This will build the frontend container; this build is only for Docker on Linux x86_64.  
 
 From ipls_anomaly_detection, navigate to frontend:
 
@@ -325,7 +320,7 @@ sh build_container.sh
 
 This will build a container that will continuously publish either "normal" or "anomaly" data to the IPLS Peer Containers. It will also setup an MQTT container to act as a broker for each IPLS Peer. You will need to build this on each of the Peer Devices. This is build is for Docker on Linux ARM64 only.
 
-From ipls_anomaly_detection, navigate to demo_generator:
+From ipls_anomaly_detection, navigate to data_generator:
 
 ```bash
 cd data_generator/
@@ -357,7 +352,7 @@ address ${FRONTEND_IP}:1883
 topic # out 1 "" ""
 ```
 
-- Change ${FRONTEND_IP} to the IP of the Demo Front-end
+- Change ${FRONTEND_IP} to the IP of the Frontend
 
 
 Edit "generators.conf":
@@ -389,7 +384,7 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
 
 ## Demonstrating the Solution
 
-1. From ipls_anomaly_detection, navigate to frontend on the Front-End Device
+1. From ipls_anomaly_detection, navigate to frontend on the Frontend Device
 
    ```bash
    sh run_docker.sh
@@ -477,7 +472,7 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
       >
       > At that point the Peers are joined in to IPLS and waiting for data. 
 
-5. From ipls_anomaly_detection, navigate to demo_generator on the Peer Devices
+5. From ipls_anomaly_detection, navigate to data_generator on the Peer Devices
 
    ```bash
    sh run_docker.sh -n
@@ -485,7 +480,7 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
 
    > **_NOTE:_**  The "-n" flag will publish normal data, while the "-a" flag will publish anomaly data 
 
-   Once the data is flowing you will see the error scores being published back to the Front-end.
+   Once the data is flowing you will see the error scores being published back to the Frontend.
 
    ![demo_architecture](resources/frontend2.png)
 
