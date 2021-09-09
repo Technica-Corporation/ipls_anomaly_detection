@@ -172,7 +172,7 @@ BOOTSTRAPPER_ADDRESS:
 
 > **_NOTE:_** The IDs above are just examples, it is very unlikely that yours will be the same
 
-Copy these down as you will them to configure the Peers.
+Copy the BOOTSTRAPPER_PEERID and BOOTSTRAPPER_ADDRESS; you will need these to configure the Peers.
 
 > **_NOTE:_** There is a configuration file at ipls_anomaly-detection/bootstrapper_container/resources/adconfig.json
 >
@@ -490,10 +490,7 @@ The general "flow" for the demonstration is usually to start all four devices on
 
 Then swap one or more of the other vehicles to anomaly data. Here you will notice that their error score lines do not spike like the first one did due to the training done on the first device.
 
-> **_NOTE:_**  If you terminate a Peer container, it will break the training of the other Peers; this is due to a bug with the IPLS code. 
+> **_NOTE:_**  If you terminate a Peer container, it will break the training of the other Peers; this is due to a bug with the IPLS code. vYou will need to terminate the rest of the containers, then start them again to proceed.
 >
->  You will need to terminate the rest of the containers, then start them again to proceed.
-
-> **_NOTE:_**  If a new Peer joins after some initial Peers have been training for a bit, you might observe an error score spike on the initial Peers; this is due to a bug with the IPLS code. 
+>  If a new Peer joins after some initial Peers have been training for a bit, you might observe an error score spike on the initial Peers; this is due to a bug with the IPLS code.  That spike is not persistent and will return to normal after the models update again.
 >
-> That spike is not persistent and will return to normal after the models update again.
