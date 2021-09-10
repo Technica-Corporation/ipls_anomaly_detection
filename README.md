@@ -404,7 +404,7 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
 
 2. Start the Bootstrapper Containers;
 
-   -  Docker Version:
+   - Docker Version:
 
      - From ipls_anomaly_detection, navigate to bootstrapper_container on the Bootstrapper Devices
 
