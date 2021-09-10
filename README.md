@@ -1,8 +1,6 @@
 # IPLS Anomaly Detection Setup
 
-Technica’s fog-as-a-service platform previously included Anomaly Detection that utilized Federated Learning.  Federated Learning allows models to continuously learn and train locally, then share new knowledge with other devices.  
-
-We have replaced Federated Learning with IPLS to decentralize the processes of model training and convergence, weight aggregation, and weight redistribution. 
+Technica’s fog-as-a-service platform previously included Anomaly Detection that utilized Federated Learning.  Federated Learning allows models to continuously learn and train locally, then share new knowledge with other devices.  We have replaced Federated Learning with IPLS to decentralize the processes of model training and convergence, weight aggregation, and weight redistribution. 
 The result is improved data privacy, performance, and elimination of single points of failure.  This repository contains a new Anomaly Detection solution utilizing IPLS.
 
 Below is the architecture for this solution:
@@ -18,15 +16,14 @@ Below is the architecture for this solution:
 
 - IPLS Peers:
 
-  - You need four devices
-    - You may use less, but you should have at least two
+  - Four devices are recommended, but you should have at least two
   - Containers are Docker or Singularity
   - Tested on Raspberry Pi 4 (Linux ARM64)
 
 - Data Generators:
 
   -  One for each IPLS Peer
-     -  Setup is more simple having them on the same device, but they do not need to be
+     -  Setup is simpler if data generators are on the same device as their Peers, but is not required
   -  Containers are Docker
   -  Tested on Raspberry Pi 4 (Linux ARM64)
 
@@ -45,9 +42,7 @@ Below is the architecture for this solution:
 
 ## Initial Setup
 
-The following setup steps will be completed on all Bootstrapper and Peer Devices.
-
-On each of the devices, pull down the project:
+On each of the devices, pull down the repository:
 
 ```bash
 git clone https://github.com/Technica-Corporation/ipls_anomaly_detection.git
@@ -57,32 +52,27 @@ git clone https://github.com/Technica-Corporation/ipls_anomaly_detection.git
 cd ipls_anomaly_detection
 ```
 
+------
 
 
-### IPLS_Java_API_technicaEdit
 
-This is the main code for IPLS; it is from the Github Repository [IPLS-Java-API](https://github.com/ChristodoulosPappas/IPLS-Java-API) by ChristodoulosPappas.
+### Compile IPLS Java API
 
-You may want to read the included presentation pdf to get a better understanding on how IPLS itself works.
+This step will compile the IPLS Java API that was edited by Technica; it is from the Github Repository [IPLS-Java-API](https://github.com/ChristodoulosPappas/IPLS-Java-API) by ChristodoulosPappas. You may want to read the included presentation pdf to get a better understanding on how IPLS itself works.
 
 The repository is included here as we have made a few changes:
 
 - Everything in the 'default' package was moved into a new package called 'originalDefault'
 
-- An AnomalyDetectionDriver.java was added to the 'default' package
+- AnomalyDetectionDriver.java added to the 'default' package
 
 - An 'anomalydetection' package was added which includes all our code for IPLS Anomaly Detection
 
 - In the pom.xml the version for deeplearning4j and nd4j was upgraded to 1.0.0-M1.1
 
   > **_NOTE:_**  The previous version pulled in a specific version of OpenBlas that has a bug on Arm64 platforms causing calculations to sporadically result in NaN.
-  
-
-------
 
 
-
-### Compile IPLS Java API
 
 From ipls_anomaly_detection, navigate to compile_container:
 
@@ -100,9 +90,9 @@ sh run_docker.sh -l
 
 > **_NOTE:_**  run_docker.sh -l will copy the .jar file and a directory of libs/ to ipls_anomaly_detection/resources. 
 >
-> Running it without the -l flag will stop it from copying the libs, you will need these, but it can take a while on small devices so I added the option of ignoring it for later compiles.
-
-Once compiled, you may want to look into ipls_anomaly_detection/resources/libs/. The Maven build will include dependencies for multiple platforms and you may want to manually delete the ones you don't need to reduce the size of the containers.
+> Running it without the -l flag will stop it from copying the libs; these are needed, but it can take a while on small devices. You may want to run it with the flag once to generate them libs and then remove the flag for subsequent builds of the IPLS jar.
+>
+> **_Recommendation:_** Once compiled, look into ipls_anomaly_detection/resources/libs. The Maven build will include dependencies for multiple platforms; manually delete the ones you don't need to reduce the size of the containers.
 
 ------
 
@@ -110,7 +100,7 @@ Once compiled, you may want to look into ipls_anomaly_detection/resources/libs/.
 
 ### Build the Base Container
 
-This will build the base container for the IPLS Bootstrapper and IPLS Peer containers. It is built on openjdk:8u302-jre-slim-buster and container go and go-IPFS along with a few other required system libraries.
+This step will build the base container for the IPLS Bootstrapper and IPLS Peer containers. It is built on openjdk:8u302-jre-slim-buster and contains go and go-IPFS along with a few other required system libraries.
 
 From ipls_anomaly_detection, navigate to base_container:
 
@@ -128,11 +118,11 @@ sh build_container.sh
 
 ## Build the IPLS Bootstrapper Containers
 
-This will build the IPLS Bootstrapper Container; you need to build this on each of the Bootstrapper Devices.
+This step will build the IPLS Bootstrapper Container and must be run on all Bootstrapper Devices.
 
 > **_NOTE:_**  You only need to build this on the Bootstrapper Devices, it does not need to be built on the Peer Devices.
 
-There is really only one difference between the Bootstrapper and Peer containers, but it is a big one. The Bootstrapper Container will `init ipfs` as part of the Docker Build; this is so the IPFS Peer ID of the Bootstrapper will stay constant for the Peer configurations. The Peers on the other hand will `init ipfs` when the containers are run, getting a new IPFS Peer ID each time.
+There is really only one difference between the Bootstrapper and Peer containers, but it is a big one. The Bootstrapper Container will `init ipfs` as part of the Docker Build to ensure the IPFS Peer ID of the Bootstrapper remains constant for the Peer configurations. The Peers on the other hand will `init ipfs` when the containers are run, getting a new IPFS Peer ID each time.
 
 ------
 
@@ -150,7 +140,7 @@ sh build_container.sh
 
 
 
-After the container is built, you will need to get the container's IPFS Peer ID:
+After the container is built, get the container's IPFS Peer ID:
 
 ```bash
 sh get_peerid.sh
@@ -174,15 +164,13 @@ BOOTSTRAPPER_ADDRESS:
 
 Copy the BOOTSTRAPPER_PEERID and BOOTSTRAPPER_ADDRESS; you will need these to configure the Peers.
 
-> **_NOTE:_** There is a configuration file at ipls_anomaly-detection/bootstrapper_container/resources/adconfig.json
->
-> This is used when the bootstrapper container is run and should not need to be changed.
+> **_NOTE:_** The configuration file at ipls_anomaly-detection/bootstrapper_container/resources/adconfig.json is used when the bootstrapper container is run and should not need to be changed.
 
 ------
 
 ### Singularity Version
 
-This step will copy the Docker container and convert it to Singularity. This is an optional step, but requires the Docker version above to be complete before proceeding.
+This is an optional step and will copy the Docker container and convert it to Singularity; it requires the Docker container step above to be complete before proceeding.
 
 From ipls_anomaly_detection navigate to bootstrapper_container/singularity:
 
@@ -198,7 +186,7 @@ sh convert_to_singularity.sh
 
 This will put bootstrapper.sif into the directory ipls_anomaly_detection/bootstrapper_container/singularity.
 
-This container will have the same Peer ID as the Docker version, so you should use that when configuring Peers. This container will also use the adConfig.json from the Docker Version step.
+This container will have the same Peer ID as the container built in the Docker step; use the same ID when configuring Peers. This container will also use the adConfig.json from the Docker Version step.
 
 ------
 
@@ -206,7 +194,7 @@ This container will have the same Peer ID as the Docker version, so you should u
 
 ## Build the IPLS Peer Containers
 
-This will build the IPLS Peer Container;  you will need to build this on each of the Peer Devices:
+This step will build the IPLS Peer Container and must be run on all Peer Devices.
 
 > **_NOTE:_**  You only need to build this on the Peer Devices, it does not need to be built on the Bootstrapper Devices.
 
@@ -238,7 +226,7 @@ Recall the values you used on the Bootstrapper Containers' `get_peer_id.sh` and 
 
 These are lists, so you should add a value for each bootstrapper node you are using.
 
-Now for each Peer Node, decide a number from 1 to 4, and use that value here for ${NODE_NUMBER}; this number will used to identify each peer in the Frontend.
+Select a ${NODE_NUMBER} for each Peer device; this number will be used to by the Frontend to identify each Peer. The Frontend is configured to listen for 1, 2, 3 and 4.
 
 Edit the file 'adConfig.json':
 
@@ -274,7 +262,7 @@ Edit the file 'adConfig.json':
 
 ### Singularity Version
 
-This step will copy the Docker container and convert it to Singularity. This is an optional step, but requires the Docker version above to be complete before proceeding.
+This is an optional step and will copy the Docker container and convert it to Singularity; it requires the Docker container step above to be complete before proceeding.
 
 From ipls_anomaly_detection, navigate to peer_container/singularity:
 
@@ -390,9 +378,23 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
    sh run_docker.sh
    ```
 
-   > **_NOTE:_** This will also start an mqtt container. If you need to restart it run:
+   > **_NOTE:_** This will also start an mqtt container.
    >
-   > `docker stop ipls_mqtt` and `docker stop ad_gui` then run `sh run_docker.sh` again.
+   >  If you need to restart MQTT: 
+   >
+   > ```bash
+   > docker stop ipls_mqtt
+   > ```
+   >
+   > ```bash
+   > docker stop ad_gui
+   > ```
+   >
+   > and then start the frontend again:
+   >
+   > ```bash
+   > sh run_docker.sh
+   > ```
 
    Open a browser and navigate to `http://${FRONTEND_IP}:5601/`
 
@@ -486,11 +488,14 @@ anomaly_file=/workspace/data/${ANOMALY_DATA}
 
 As shown here, Vehicle 4 is using "normal" data so the blue line, the error scores, will be below the yellow line. The other three vehicles are using "anomaly" data.
 
-The general "flow" for the demonstration is usually to start all four devices on normal data then swap one to anomaly data and let it train for a several minutes; allowing the blue error score line to dip back below the yellow line.
+The general "flow" for the demonstration is usually to start all four devices on normal data then swap one to anomaly data and let it train for a several minutes.
 
-Then swap one or more of the other vehicles to anomaly data. Here you will notice that their error score lines do not spike like the first one did due to the training done on the first device.
+![demo_architecture](resources/frontend3.png)
+
+After the blue error score line to dips back below the yellow line, swap one or more of the other vehicles to anomaly data. Here you will notice that their error score lines do not spike like the first one did due to the training done on the first device and sharing of model gradients via IPLS.
+
+![demo_architecture](resources/frontend4.png)
 
 > **_NOTE:_**  If you terminate a Peer container, it will break the training of the other Peers; this is due to a bug with the IPLS code. vYou will need to terminate the rest of the containers, then start them again to proceed.
 >
 >  If a new Peer joins after some initial Peers have been training for a bit, you might observe an error score spike on the initial Peers; this is due to a bug with the IPLS code.  That spike is not persistent and will return to normal after the models update again.
->
