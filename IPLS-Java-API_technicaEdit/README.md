@@ -1,24 +1,20 @@
 # IPLS_Java_API_technicaEdit
 
-This is the main code for IPLS; it is from the Github Repository [IPLS-Java-API](https://github.com/ChristodoulosPappas/IPLS-Java-API) by ChristodoulosPappas.
-
-You may want to read the included presentation pdf to get a better understanding on how IPLS itself works.
+This is the main code for IPLS; it is from the Github Repository [IPLS-Java-API](https://github.com/ChristodoulosPappas/IPLS-Java-API) by [ChristodoulosPappas](https://github.com/ChristodoulosPappas). You may want to read the presentation pdf included in the repository to get a better understanding on how IPLS itself works.
 
 The repository is included here as we have made a few changes:
 
 - Everything in the 'default' package was moved into a new package called 'originalDefault'
 
-- An AnomalyDetectionDriver.java was added to the 'default' package
+- AnomalyDetectionDriver.java added to the 'default' package
 
 - An 'anomalydetection' package was added which includes all our code for IPLS Anomaly Detection
 
 - In the pom.xml the version for deeplearning4j and nd4j was upgraded to 1.0.0-M1.1
 
-  > **_NOTE:_**  The previous version pulled in a specific version of OpenBlas that has a bug on Arm64 platforms causing calculations to sporadically result in NaN.
+  > **_NOTE:_**  The previous version pulled in a specific version of OpenBLAS that has a bug on Arm64 platforms causing calculations to sporadically result in NaN.
 
-
-
-Everything below this point is the READE included with the original IPLS_Java_API repository
+Everything below this point is the README included with the original IPLS_Java_API repository
 
 ------
 
