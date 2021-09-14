@@ -1,7 +1,6 @@
 # IPLS Anomaly Detection
 
-Technica’s fog-as-a-service platform previously included Anomaly Detection that utilized Federated Learning.  Federated Learning allows models to continuously learn and train locally, then share new knowledge with other devices.  We have replaced Federated Learning with IPLS to decentralize the processes of model training and convergence, weight aggregation, and weight redistribution. 
-The result is improved data privacy, performance, and elimination of single points of failure.  This repository contains a new Anomaly Detection solution utilizing IPLS.
+Technica has previous implemented an anomaly detection solution for Federated Learning on low swap devices that  allows models to continuously learn and train locally, then share new knowledge with other devices.  However, we continually strive to find solutions that utilize even less resources and provide more functionality. We have replaced our previous Federated Learning solution with IPLS to decentralize the processes of model training and convergence, weight aggregation, and weight redistribution. The result is improved data privacy, performance, and elimination of single points of failure. This repository contains a new Anomaly Detection solution utilizing IPLS.
 
 Below is the architecture for this solution:
 
