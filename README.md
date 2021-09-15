@@ -23,7 +23,7 @@ Below is the architecture for this solution:
      -  Setup is simpler if data generators are on the same device as their Peers, but is not required
   -  Containers are Docker
   -  Tested on Raspberry Pi 4 (Linux ARM64)
-- Frontend
+- Dashboard
   - You need one device separate from the Peers
   - Container is Docker
   - Tested on Linux x86_64
@@ -211,7 +211,7 @@ Recall the values you used on the Bootstrapper Containers' `get_peer_id.sh` and 
 
 These are lists, so you should add a value for each bootstrapper node you are using.
 
-Select a ${NODE_NUMBER} for each Peer device; this number will be used to by the Frontend to identify each Peer. The Frontend is configured to listen for 1, 2, 3 and 4.
+Select a ${NODE_NUMBER} for each Peer device; this number will be used to by the Dashboard to identify each Peer. The Dashboard is configured to listen for 1, 2, 3 and 4.
 
 Edit the file 'adConfig.json':
 
@@ -265,11 +265,13 @@ This container will also use the adConfig.json from the Docker Version step.
 
 
 
-### Build the Frontend Container
+### Build the Dashboard Container
 
-This step builds the frontend container; this build is only for Docker on Linux x86_64.  
+This step builds the Dashboard container; this build is only for Docker on Linux x86_64. 
 
-This step should be completed on the device designated for the frontend.
+The Dashboard listens for error scores that the Peer containers publish and displays them. The Dashboard itself does not interact with the Peer container, instead Peer containers are configured to bridge to the Dashboard's MQTT Broker.
+
+This step should be completed on the device designated for the Dashboard.
 
 From ipls_anomaly_detection, navigate to frontend:
 
@@ -321,11 +323,11 @@ allow_anonymous true
 max_queued_messages 20000
 
 connection cloud-bridge_0
-address ${FRONTEND_IP}:1883
+address ${DASHBOARD_IP}:1883
 topic # out 1 "" ""
 ```
 
-Change ${FRONTEND_IP} to the IP of the Frontend
+Change ${DASHBOARD_IP} to the IP of the Dashboardf
 
 
 
@@ -361,7 +363,7 @@ Change ${NORMAL_DATA} and ${ANOMALY_DATA}  to the file names in ipls_anomaly_det
 
 The following steps will walk through running the IPLS Anomaly Detection Solution.
 
-1. From ipls_anomaly_detection, navigate to frontend on the Frontend Device
+1. From ipls_anomaly_detection, navigate to frontend on the Dashboard Device
 
    ```bash
    sh run_docker.sh
@@ -379,13 +381,13 @@ The following steps will walk through running the IPLS Anomaly Detection Solutio
    > docker stop ad_gui
    > ```
    >
-   > and then start the frontend again:
+   > and then start the Dashboard again:
    >
    > ```bash
    > sh run_docker.sh
    > ```
 
-   Open a browser and navigate to `http://${FRONTEND_IP}:5601/`
+   Open a browser and navigate to `http://${DASHBOARD_IP}:5601/`
 
    ![demo_architecture](resources/frontend1.png)
 
@@ -471,7 +473,7 @@ The following steps will walk through running the IPLS Anomaly Detection Solutio
 
    > **_NOTE:_**  The "-n" flag will publish normal data, while the "-a" flag will publish anomaly data 
 
-   Once the data is flowing you will see the error scores being published back to the Frontend.
+   Once the data is flowing you will see the error scores being published back to the Dashboard.
 
    ![demo_architecture](resources/frontend2.png)
 
